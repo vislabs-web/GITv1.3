@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Color Pixel Gallery</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #000000;
+      --secondary: #FFFFFF;
+      --accent: #FF5E5B;
+      --shadow: 8px 8px 0px var(--primary);
+      --color-digital: #6A5ACD;
+      --color-traditional: #228B22;
+      --color-photography: #4169E1;
+      --color-sculpture: #D2691E;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Courier New', monospace;
+    }
+
+    body {
+      background-color: var(--secondary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header, .gallery-container {
+      width: 100%;
+      max-width: 1200px;
+      border: 1px solid var(--primary);
+      background-color: var(--secondary);
+      box-shadow: var(--shadow);
+      position: relative;
+      border-radius: 12px;
+      margin-bottom: 40px;
+    }
+
+    header {
+      padding: 20px;
+    }
+
+    header::before,
+    .gallery-container::before {
+      content: '';
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      right: -6px;
+      bottom: -6px;
+      border: 1px solid var(--primary);
+      z-index: -1;
+      border-radius: 12px;
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .gallery-container {
+      padding: 40px 30px;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      background-color: var(--secondary);
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      color: var(--secondary);
+      box-shadow: 4px 4px 0px var(--primary);
+      transform: translate(-2px, -2px);
+    }
+
+    .filter-btn[data-filter="digital"]:hover,
+    .filter-btn[data-filter="digital"].active {
+      background-color: var(--color-digital);
+    }
+
+    .filter-btn[data-filter="traditional"]:hover,
+    .filter-btn[data-filter="traditional"].active {
+      background-color: var(--color-traditional);
+    }
+
+    .filter-btn[data-filter="photography"]:hover,
+    .filter-btn[data-filter="photography"].active {
+      background-color: var(--color-photography);
+    }
+
+    .filter-btn[data-filter="sculpture"]:hover,
+    .filter-btn[data-filter="sculpture"].active {
+      background-color: var(--color-sculpture);
+    }
+
+    .filter-btn[data-filter="all"]:hover,
+    .filter-btn[data-filter="all"].active {
+      background-color: var(--accent);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 992px) {
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .gallery-item {
+      border: 2px solid var(--primary);
+      background-color: var(--secondary);
+      transition: all 0.3s;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      animation: fadeInUp 0.6s ease both;
+      animation-delay: calc(var(--i) * 0.1s);
+    }
+
+    .gallery-item:hover {
+      transform: scale(1.03);
+      box-shadow: 6px 6px 0px var(--primary);
+    }
+
+    .gallery-item[data-category="digital"] {
+      border-top: 8px solid var(--color-digital);
+    }
+
+    .gallery-item[data-category="traditional"] {
+      border-top: 8px solid var(--color-traditional);
+    }
+
+    .gallery-item[data-category="photography"] {
+      border-top: 8px solid var(--color-photography);
+    }
+
+    .gallery-item[data-category="sculpture"] {
+      border-top: 8px solid var(--color-sculpture);
+    }
+
+    .item-image {
+      width: 100%;
+      height: 250px;
+      overflow: hidden;
+    }
+
+    .item-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s, filter 0.3s;
+      filter: grayscale(20%);
+    }
+
+    .gallery-item:hover .item-image img {
+      transform: scale(1.05);
+      filter: grayscale(0%);
+    }
+
+    .item-info {
+      padding: 20px;
+      border-top: 2px solid var(--primary);
+    }
+
+    .item-info h3 {
+      color: var(--primary);
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .item-info p {
+      color: var(--primary);
+      opacity: 0.8;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .price-button {
+      background-color: var(--accent);
+      color: var(--secondary);
+      border: 2px solid var(--primary);
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: bold;
+      font-family: 'Courier New', monospace;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .price-button:hover {
+      background-color: #e44444;
+    }
+
+    .category-label {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 4px 8px;
+      font-weight: bold;
+      font-size: 12px;
+      border: 2px solid var(--primary);
+      z-index: 2;
+    }
+
+    [data-category="digital"] .category-label {
+      background-color: var(--color-digital);
+      color: white;
+    }
+
+    [data-category="traditional"] .category-label {
+      background-color: var(--color-traditional);
+      color: white;
+    }
+
+    [data-category="photography"] .category-label {
+      background-color: var(--color-photography);
+      color: white;
+    }
+
+    [data-category="sculpture"] .category-label {
+      background-color: var(--color-sculpture);
+      color: white;
+    }
+
+    /* Profile Card Styles */
+    .card-container {
+      width: 340px;
+      margin: 40px auto 80px;
+      border-radius: 12px;
+      overflow: hidden;
+      font-family: 'IBM Plex Mono', monospace;
+      background: #f4f4f4;
+      border: 3px solid #000;
+      box-shadow: 6px 6px 0px #000;
+    }
+
+    .upper-container {
+      background: #000;
+      padding: 20px;
+    }
+
+    .image-container {
+      width: 100px;
+      height: 100px;
+      margin: auto;
+      overflow: hidden;
+      border-radius: 50%;
+      border: 3px solid #FFD166;
+    }
+
+    .image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .lower-container {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .lower-container h3 {
+      margin-bottom: 5px;
+    }
+
+    .lower-container h4 {
+      margin-bottom: 15px;
+      font-weight: normal;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .lower-container p {
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .lower-container .btn {
+      padding: 8px 16px;
+      background-color: #FFD166;
+      border: 2px solid #000;
+      text-decoration: none;
+      font-weight: bold;
+      color: #000;
+      box-shadow: 3px 3px 0 #000;
+      transition: 0.3s ease;
+    }
+
+    .lower-container .btn:hover {
+      background-color: #ffe680;
+      transform: translate(-2px, -2px);
+      box-shadow: 5px 5px 0 #000;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BROS-PROJECTS</h1>
+  </header>
+
+  <div class="gallery-container">
+    <div class="filter-controls">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="digital">Game</button>
+      <button class="filter-btn" data-filter="traditional">Animations</button>
+      <button class="filter-btn" data-filter="photography">Interfaces</button>
+      <button class="filter-btn" data-filter="sculpture">Unique</button>
+    </div>
+
+    <div class="gallery-grid">
+      <div class="gallery-item" data-category="digital">
+  <div class="category-label">Game</div>
+  <div class="item-image">
+    <img src="Screenshot 2025-07-23 142712.png" alt="Digital Art 1">
+  </div>
+  <div class="item-info">
+    <h3>THE CUBE</h3>
+    <p>THE BEST GAME MADE BY BROS.PROJECTS</p>
+    <a href="https://vislabs-web.github.io/thecube/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="digital">
+  <div class="category-label">Game</div>
+  <div class="item-image">
+    <img src="Screenshot 2025-07-23 140853.png" alt="Digital Art 2">
+  </div>
+  <div class="item-info">
+    <h3>THE HOME</h3>
+    <p>BUILD YOUR OWN TREEHOUSE</p>
+    <a href="https://vislabs-web.github.io/home2/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="traditional">
+  <div class="category-label">Animation</div>
+  <div class="item-image">
+    <img src="boll.png" alt="Traditional Art 1">
+  </div>
+  <div class="item-info">
+    <h3>SPACE BOLL</h3>
+    <p>YES,IT IS MADE WITH JS</p>
+    <a href="https://vislabs-web.github.io/bollv1.2/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="traditional">
+  <div class="category-label">Animation</div>
+  <div class="item-image">
+    <img src="cake.png" alt="Traditional Art 2">
+  </div>
+  <div class="item-info">
+    <h3>THE CAKE</h3>
+    <p>CAKE FOR SPECIAL ONE</p>
+    <a href="https://vislabs-web.github.io/cake/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="photography">
+  <div class="category-label">Interface</div>
+  <div class="item-image">
+    <img src="sun.png" alt="Photography 1">
+  </div>
+  <div class="item-info">
+    <h3>DAY AND NIGTH</h3>
+    <p>ONE OF THE MOST BEST INTERFACE</p>
+    <a href="https://vislabs-web.github.io/sun/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="photography">
+  <div class="category-label">Interface </div>
+  <div class="item-image">
+    <img src="LION.png" alt="Photography 2">
+  </div>
+  <div class="item-info">
+    <h3>lOGIN</h3>
+    <p>I LIKE PIXEL</p>
+    <a href="https://vislabs-web.github.io/siginup/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="sculpture">
+  <div class="category-label">Unique</div>
+  <div class="item-image">
+    <img src="myspace.png" alt="Sculpture 1">
+  </div>
+  <div class="item-info">
+    <h3>MY SUN</h3>
+    <p>MY SPACE,THAT HAS AN 30LAKH OF LIFE</p>
+    <a href="https://vislabs-web.github.io/myspace/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="sculpture">
+  <div class="category-label">Unique</div>
+  <div class="item-image">
+    <img src="AIV1.5.PNG" alt="Sculpture 2">
+  </div>
+  <div class="item-info">
+    <h3>MY-AI</h3>
+    <p>YOU CAN ASK ANYTHING,IT IS STILL LERNING</p>
+    <a href="https://vislabs-web.github.io/main2/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="digital">
+  <div class="category-label">Game</div>
+  <div class="item-image">
+    <img src="gomeofcar.png" alt="Digital Art 3">
+  </div>
+  <div class="item-info">
+    <h3>THE CAR</h3>
+    <p>YES,IT IS 2D GAME MADE WITH HTML</p>
+    <a href="https://vislabs-web.github.io/car/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="traditional">
+  <div class="category-label">Animation</div>
+  <div class="item-image">
+    <img src="cow.png" alt="Traditional Art 3">
+  </div>
+  <div class="item-info">
+    <h3>THE COW</h3>
+    <p>404 ERROR WITH COW</p>
+    <a href="https://vislabs-web.github.io/cow-error" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="sculpture">
+  <div class="category-label">Unique</div>
+  <div class="item-image">
+    <img src="LION.png" alt="Sculpture 3">
+  </div>
+  <div class="item-info">
+    <h3>LION</h3>
+    <p>MY CUTE PET</p>
+    <a href="https://vislabs-web.github.io/lion/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="digital">
+  <div class="category-label">Game</div>
+  <div class="item-image">
+    <img src="i.png" alt="Digital Art 4">
+  </div>
+  <div class="item-info">
+    <h3>THE MACHINE</h3>
+    <p>ALL OF THE BEST</p>
+    <a href="https://vislabs-web.github.io/shop/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="traditional">
+  <div class="category-label">Animation</div>
+  <div class="item-image">
+    <img src="flower.png" alt="Traditional Art 4">
+  </div>
+  <div class="item-info">
+    <h3>THE FLOWER</h3>
+    <p>FLOWER FOR SPECIAL ONE</p>
+    <a href="https://vislabs-web.github.io/flower/" class="price-button">DEMO</a>
+  </div>
+</div>
+<div class="gallery-item" data-category="digital">
+  <div class="category-label">Game</div>
+  <div class="item-image">
+    <img src="v.png" alt="Digital Art 5">
+  </div>
+  <div class="item-info">
+    <h3>THE VAIBHAV AI</h3>
+    <p>YOU CANNOT BEAT HIM</p>
+    <a href="https://vislabs-web.github.io/GAME-OF-VAIBHAV-AI/" class="price-button">DEMO</a>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="traditional">
+  <div class="category-label">Animation</div>
+  <div class="item-image">
+    <img src="heart.png" alt="Traditional Art 5">
+  </div>
+  <div class="item-info">
+    <h3>HEART</h3>
+    <p>THE HEART OF THE SEA</p>
+    <A href="https://vislabs-web.github.io/heart/" class="price-button">DEMO</A>
+  </div>
+</div>
+
+<div class="gallery-item" data-category="digital">
+  <div class="category-label">Game</div>
+  <div class="item-image">
+    <img src="E.png" alt="Digital Art 6">
+  </div>
+  <div class="item-info">
+    <h3>THE SNAKE</h3>
+    <p>IT IS OVER FIRST WEB GAME</p>
+    <a href="https://vislabs-web.github.io/snake/index.html" class="price-button">DEMO</a>
+  </div>
+</div>
+
+
+</div>
+</div>
+</div>
+
+
+<audio id="hover-sound" src="R.mp3"></audio>
+  <audio id="click-sound" src="V.mp3"></audio>
+  <!-- PROFILE CARD -->
+  <div class="card-container">
+    <div class="upper-container">
+      <div class="image-container">
+        <img src="8.jpg" alt="profile image" />
+      </div>
+    </div>
+
+    <div class="lower-container">
+      <div>
+        <h3>VAIBHAV</h3>
+        <h4>Student and Web Developer</h4>
+      </div>
+      <div>
+        <p>I am 16 years old boy, who do not have any talent.</p>
+      </div>
+      <div>
+        <a href="https://www.instagram.com/its_vir_vaibhav/" class="btn">View Profile</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Instagram Button -->
+<a target="_blank" href="https://www.instagram.com/bros.projects/" 
+   style="position: fixed; bottom: 1rem; right: 1rem; background: #FFD166; color: #073B4C; text-decoration: none; padding: 0.5rem 1rem; border: 3px solid #073B4C; box-shadow: 3px 3px 0 #073B4C; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.875rem; transition: all 0.3s; z-index: 1200; border-radius: 2px; display: flex; align-items: center; gap: 0.5rem;"
+   onmouseover="this.style.background='#F8F9FA'; this.style.transform='translate(-1px, -1px)'; this.style.boxShadow='4px 4px 0 #073B4C';"
+   onmouseout="this.style.background='#FFD166'; this.style.transform='translate(0, 0)'; this.style.boxShadow='3px 3px 0 #073B4C';">
+  <i class="fas fa-link"></i>
+  BROS-PROJECTS
+</a>
+
+<!-- ✅ AUDIO TAGS PLACED HERE -->
+<audio id="hover-sound" src="file:///C:/Users/Rushabh/Pictures/Screenshots/ui-sounds-pack-5-2-359749.mp3"></audio>
+<audio id="click-sound" src="file:///C:/Users/Rushabh/Pictures/Screenshots/mouse-click-290204.mp3"></audio>
+
+  
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      const galleryItems = document.querySelectorAll('.gallery-item');
+
+      galleryItems.forEach((item, index) => {
+        item.style.setProperty('--i', index);
+      });
+
+      filterButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          this.classList.add('active');
+          const filterValue = this.getAttribute('data-filter');
+
+          galleryItems.forEach(item => {
+            item.style.display = (filterValue === 'all' || item.getAttribute('data-category') === filterValue) ? 'block' : 'none';
+          });
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
